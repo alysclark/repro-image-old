@@ -1,4 +1,4 @@
-from utils import cubify, calculate_fractal_dimension
+from reproimage.utils import cubify, calculate_fractal_dimension
 import SimpleITK as sitk
 from scipy.stats import variation
 import numpy as np
