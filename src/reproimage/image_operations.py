@@ -106,3 +106,4 @@ def binary_fractal_window_series(img, window_sizes):
 
     frac_dim = calculate_fractal_dimension(fractal_dim_series, window_sizes, type='binary')
     return frac_dim
+

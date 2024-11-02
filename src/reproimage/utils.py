@@ -41,3 +41,15 @@ def calculate_fractal_dimension(coeff_vars, window_sizes, type='Greyscale', dim=
         m, b = np.polyfit(logx, logy, 1)
         frac_dim = -1 * m
     return frac_dim
+
+def cartesian_product(*arrays):
+    """
+    :param arrays:
+    :return:
+    """
+    la = len(arrays)
+    dtype = np.result_type(*arrays)
+    arr = np.empty([len(a) for a in arrays] + [la], dtype=dtype)
+    for i, a in enumerate(np.ix_(*arrays)):
+        arr[...,i] = a
+    return arr.reshape(-1, la)
