@@ -242,3 +242,49 @@ def calculate_junction_node_density_field(graph, coords, radius=35):
     results = tree.query_ball_point([x for x in junc_coords], radius)
     density_values = [len(x) for x in results]
     return density_values, junction_nodes
+
+def renumber_graph_from_inlet(graph_obj, inlet):
+    post_order_nodes = list(nx.dfs_postorder_nodes(graph_obj, source=inlet))
+    post_order_nodes.reverse()
+    new_map = list(range(len(post_order_nodes)))
+    mapping = {k: v for k, v in zip(post_order_nodes, new_map)}
+    inv_mapping = {v: k for k, v in zip(post_order_nodes, new_map)}
+
+    relabelled_sub_tree = nx.relabel_nodes(graph_obj, mapping)
+    return relabelled_sub_tree, inv_mapping
+
+def get_renumbered_graph_coordinate_array(graph_obj, inv_mapping, global_coords):
+    global_nodes = get_global_nodes_from_local(graph_obj, inv_mapping)
+    return global_coords[global_nodes]
+
+def get_global_nodes_from_local(graph_obj, inv_mapping):
+    global_nodes = []
+    for n in range(graph_obj.number_of_nodes()):
+        global_nodes.append(inv_mapping[n])
+    return global_nodes
+
+def Strahler_numbering(di_graph :nx.DiGraph, inlet):
+    di_graph = di_graph.copy()
+    strahler_mapping = {}
+    post_order_nodes = nx.dfs_postorder_nodes(di_graph, source=inlet)
+    for node in post_order_nodes:
+        children = nx.dfs_successors(di_graph, source=node, depth_limit=1)
+        if len(children) == 0:
+            strahler_mapping[node] = {'strahler_order' : 1}
+        else:
+            children = children[node]
+            strahler_set = []
+            for child in children:
+                strahler_set.append(strahler_mapping[child]['strahler_order'])
+
+            strahler_set.sort()
+            if len(strahler_set) > 1:
+                if strahler_set[-1] == strahler_set[-2]:
+                    strahler_mapping[node] = {'strahler_order' : strahler_set[-1] + 1}
+                else:
+                    strahler_mapping[node] = {'strahler_order' : strahler_set[-1]}
+            else:
+                strahler_mapping[node] = {'strahler_order' : strahler_set[-1]}
+
+    nx.set_node_attributes(di_graph, strahler_mapping)
+    return di_graph
