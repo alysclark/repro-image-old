@@ -181,7 +181,14 @@ def radius_path(pixel_coords, perm_array, seg_img, metric='mean'):
 
 @jit(nopython=True)
 def find_distances_using_normal(coord1, coord2, VolumeImage, perm_array):
-
+    """
+    :param coord1:
+    :param coord2:
+    :param VolumeImage:
+    :param perm_array:
+    :return: the measured distances along various projected vectors along the line from coord1 to coord2, distance is
+    distance from the line to the transition from a label of 1 to 0.
+    """
     # get centre line vector
     centre = (coord1 - coord2).astype(np.double)/ np.linalg.norm((coord1 - coord2).astype(np.double))
     numSamples = perm_array.shape[0]
@@ -231,11 +238,27 @@ def find_distances_using_normal(coord1, coord2, VolumeImage, perm_array):
     return distances
 
 def map_node_field_graph(graph, field, nodes, label='field'):
+    """
+    :param graph:
+    :param field: array like object of which field[i] corresponds to the field value of the node at node[i]
+    :param nodes: array like object which contains a list of nodes that corresponds the ordering of the field values
+    :param label: Field label, i.e what the field is could be pressure, strahler order etc
+    :return: A graph with the field mapped into a node attribute dictionary
+    """
     for node, val in zip(nodes, field):
         if graph.has_node(node):
             nx.set_node_attributes(graph, {node: val}, name=label)
 
 def calculate_junction_node_density_field(graph, coords, radius=35):
+    """
+    :param graph:
+    :param coords:
+    :param radius:
+    :return: paired lists of density value, and junctions nodes, with each ith entry corresponding
+    Calculates a density value for each junction node in the graph, corressponding to the number of junction nodes that
+    can be reached from a specified junction node within a specific radius specified by the input parameter. Search
+    distance is Euclidean not distance defined by the shortest path defined by graph connectivity.
+    """
     n_junction, junction_nodes = get_junction_nodes(graph)
     junc_coords = coords[junction_nodes]
     tree = spatial.KDTree(junc_coords)
@@ -244,6 +267,13 @@ def calculate_junction_node_density_field(graph, coords, radius=35):
     return density_values, junction_nodes
 
 def renumber_graph_from_inlet(graph_obj, inlet):
+    """
+    :param graph_obj:
+    :param inlet:
+    :return: renumbered graph
+    renumbers the nodes in the graph from the node defined by the inlet node input parameter. The ordering from the
+     inlet node is defined as the depth first search in poster order.
+    """
     post_order_nodes = list(nx.dfs_postorder_nodes(graph_obj, source=inlet))
     post_order_nodes.reverse()
     new_map = list(range(len(post_order_nodes)))
@@ -254,16 +284,38 @@ def renumber_graph_from_inlet(graph_obj, inlet):
     return relabelled_sub_tree, inv_mapping
 
 def get_renumbered_graph_coordinate_array(graph_obj, inv_mapping, global_coords):
+    """
+    :param graph_obj:
+    :param inv_mapping:
+    :param global_coords:
+    :return:
+    Given a graph that has been renumbered according to some mapping as defined by the inv_mapping input parameter,
+    the coordinates for the renumbered nodes are returned in order from node 0 to node N where N is the number of nodes
+    in the graph.
+    """
     global_nodes = get_global_nodes_from_local(graph_obj, inv_mapping)
     return global_coords[global_nodes]
 
 def get_global_nodes_from_local(graph_obj, inv_mapping):
+    """
+    :param graph_obj:
+    :param inv_mapping:
+    :return: return a list of node indices that corresponds to the global nodes corresponding to nodes 0 -
+    graph_obj.number_of_nodes()
+    """
     global_nodes = []
     for n in range(graph_obj.number_of_nodes()):
         global_nodes.append(inv_mapping[n])
     return global_nodes
 
 def Strahler_numbering(di_graph :nx.DiGraph, inlet):
+    """
+    :param di_graph:
+    :param inlet:
+    :return:
+    returns a directed graph where each node has a strahler_order attribute corresponding to the strahler order of each
+    node
+    """
     di_graph = di_graph.copy()
     strahler_mapping = {}
     post_order_nodes = nx.dfs_postorder_nodes(di_graph, source=inlet)
