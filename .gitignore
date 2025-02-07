@@ -101,9 +101,12 @@ ENV/
 # mkdocs documentation
 /site
 
-#pycharm stuff
-.idea
-
 # Backup files
 *~
 
+# Pyre type checker
+.pyre/
+
+# Pycharm
+idea/
+.idea*

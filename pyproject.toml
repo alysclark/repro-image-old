@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "reproimage"
+version = "0.0.1"
+authors = [{name="Toby Jackson", email="Toby.Jackson@auckland.ac.nz"},]
+description = "A package for processing of placental images for the development of mathematical models"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: APACHE License", "Operating System :: OS Independent",]
+dependencies = ["SimpleITK", "networkx", "scipy"]

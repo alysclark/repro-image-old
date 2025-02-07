@@ -9,8 +9,8 @@ with open('LICENSE') as f:
 setup(
     name='repro-image',
     version='0.1.0',
-    packages=find_packages('source', exclude=['tests', 'tests.*', 'docs']),
-    package_dir={'': 'source'},
+    packages=find_packages('src', exclude=['tests', 'tests.*', 'docs']),
+    package_dir={'': 'src'},
     url='https://github.com/virtualpregnancy/repro-image.git',
     license=license,
     author='ABI Pregnancy Modelling Group',
